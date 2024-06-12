@@ -40,31 +40,31 @@ export const chainListener = new ChainListener({
 
 				// See if the request has already been processed
 				// const req = await syn
-				// .getRequest({
-				// transactionId: requestId,
-				// projectId: <your-project-ID>,
-				// })
-				// .catch((e) => {
-				// console.debug(`[punk-mirror] beginning reflection ${requestId}`)
-				// })
+				// 	.getRequest({
+				// 		transactionId: requestId,
+				// 		projectId: "<your-project-ID>",
+				// 	})
+				// 	.catch((e) => {
+				// 		console.debug(`[punk-mirror] beginning reflection ${requestId}`)
+				// 	})
 
 				// if (req) {
-				// const attempt = req.transactionAttempts.find(
-				// (a) => a.transactionId === requestId,
-				// )
-				// console.debug(
-				// `[punk-mirror] tx ${requestId} already reflected: (${attempt?.status}) ${attempt?.hash}`,
-				// )
-				// return
+				// 	const attempt = req.transactionAttempts.find(
+				// 		(a) => a.transactionId === requestId,
+				// 	)
+				// 	console.debug(
+				// 		`[punk-mirror] tx ${requestId} already reflected: (${attempt?.status}) ${attempt?.hash}`,
+				// 	)
+				// 	return
 				// }
 
 				// Mint an NFT on base to the purchaser of a cryptopunk
 				// const { transactionId } = await syn
 				// 	.sendTransaction({
 				// 		requestId,
-				// 		chainId: <target-chain-ID>,
-				// 		contractAddress: <target-contract-address>,
-				// 		projectId: <your-project-ID>,
+				// 		chainId: <your-chain-ID>,
+				// 		contractAddress: "<your-contract-address>",
+				// 		projectId: "<your-project-ID>",
 				// 		functionSignature: "mintTo(address to)",
 				// 		args: {
 				// 			to: toAddress,
@@ -77,7 +77,7 @@ export const chainListener = new ChainListener({
 				// 	})
 				// const hash = await syn.waitForHash({
 				// 	transactionId,
-				// 	projectId: <your-project-ID>,
+				// 	projectId: "",
 				// })
 				// console.log(`got hash: ${hash} for transaction ID: ${transactionId}`)
 			},
