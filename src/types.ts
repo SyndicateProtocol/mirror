@@ -77,9 +77,3 @@ type TransactionAttempt = {
 	createdAt: DateTime
 	updatedAt: DateTime
 }
-
-export type CoinGeckoSimplePriceResponse = {
-	"degen-base": { usd: number }
-}
-
-export type PriceResponses = CoinGeckoSimplePriceResponse

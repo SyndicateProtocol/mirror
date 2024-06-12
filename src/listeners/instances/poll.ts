@@ -1,6 +1,5 @@
 import { Http } from "../../clients/http"
 import { Syndicate } from "../../clients/syndicate"
-import type { CoinGeckoSimplePriceResponse } from "../../types"
 import { PollListener } from "../poll"
 
 const http = new Http(
@@ -15,15 +14,13 @@ export const pollListener = new PollListener<number>({
 	pollIntervalSeconds: 60,
 	dataToAwait: [
 		() =>
-			Http.get<CoinGeckoSimplePriceResponse>(
-				"https://api.coingecko.com/api/v3/simple/price?ids=degen-base&vs_currencies=usd",
-			).then((data) => data["degen-base"].usd),
+			Http.get<{ ethereum: { usd: number } }>(
+				"https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd",
+			).then((data) => data.ethereum.usd),
 	],
 	onData: async ({ fulfilled, rejected: _ }) => {
 		const price = fulfilled[0]
-		console.debug(
-			`[price-mirror]: got price: ${price}, uncomment below to broadcast`,
-		)
+		console.debug(`[price-mirror]: got eth price: ${price}`)
 		// const { transactionId } = await syn
 		//   .sendTransaction({
 		// 		chainId: <target-chain-ID-here>,

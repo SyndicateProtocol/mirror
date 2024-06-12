@@ -25,9 +25,7 @@ export const chainListener = new ChainListener({
 				args: { punkIndex, fromAddress, toAddress },
 				transactionHash,
 			}) => {
-				console.debug(
-					`[punk-mirror]: punk index of ${punkIndex} bought, uncomment below to broadcast`,
-				)
+				console.debug(`[punk-mirror]: punk index of ${punkIndex} bought`)
 
 				if (!toAddress) {
 					console.error(`toAddress is not defined for punkIndex: ${punkIndex}`)
