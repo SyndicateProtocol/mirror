@@ -1,9 +1,10 @@
-import degenListener from "./instances/degen"
-import goldListener from "./instances/gold"
+import { chainListener } from "./instances/chain"
+import { pollListener } from "./instances/poll"
 
-export const listeners = [goldListener, degenListener]
+export const listeners = [chainListener, pollListener]
+export const enabledListeners = listeners.filter((l) => l.enabled)
 
 export const initListeners = () =>
-	Promise.all(listeners.map((listener) => listener.init()))
+	Promise.all(enabledListeners.map((l) => l.init()))
 export const destroyListeners = () =>
-	Promise.all(listeners.map((listener) => listener.destroy()))
+	Promise.all(listeners.map((l) => l.destroy()))

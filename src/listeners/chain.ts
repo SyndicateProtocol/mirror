@@ -5,8 +5,6 @@ import {
 	type Log,
 	type WatchEventReturnType,
 } from "viem"
-
-import type { Logger } from "~/listeners/listener"
 import { Listener, type ListenerParams } from "./listener"
 
 type Logs<
@@ -21,7 +19,6 @@ type Logs<
 
 export interface OnChainDataParams<T extends AbiEvent> {
 	logs: Logs<T>
-	logger: Logger
 }
 
 export interface ChainListenerParams<T extends AbiEvent>
@@ -49,7 +46,7 @@ export class ChainListener<T extends AbiEvent> extends Listener {
 	private readonly pollingInterval
 
 	constructor(private readonly params: ChainListenerParams<T>) {
-		super(params.id)
+		super(params.id, params.enabled)
 		this.viem = createPublicClient({
 			transport: http(this.params.rpcUrl),
 		})
@@ -57,19 +54,23 @@ export class ChainListener<T extends AbiEvent> extends Listener {
 	}
 
 	init() {
+		if (!this.enabled) {
+			console.info(`[${this.id}] disabled`)
+			return
+		}
 		this.unwatch = this.listen()
 		this.getHistory().catch((e) => {
-			this.logger.error("failed to fetch history", e)
+			console.error(`[${this.id}] failed to fetch history`, e)
 		})
 	}
 
 	listen() {
-		this.logger.info("starting...")
+		console.info(`[${this.id}] listening...`)
 		return this.viem.watchEvent({
 			pollingInterval: this.pollingInterval * 1_000,
 			onLogs: (logs) => {
 				if (logs.length > 0) {
-					this.params.onData({ logs, logger: this.logger })
+					this.params.onData({ logs })
 				}
 			},
 			address: this.params.contractAddress,
@@ -96,8 +97,8 @@ export class ChainListener<T extends AbiEvent> extends Listener {
 		const from = this.params.fromBlock
 		const to = await this.viem.getBlockNumber()
 		if (to < from) {
-			this.logger.debug(
-				`To block number: ${to} is less than from block number: ${from}, skipping fetching history.`,
+			console.debug(
+				`[${this.id}] To block number: ${to} is less than from block number: ${from}, skipping fetching history.`,
 			)
 			return []
 		}
@@ -111,12 +112,13 @@ export class ChainListener<T extends AbiEvent> extends Listener {
 				toBlock,
 			})
 			if (logs.length > 0) {
-				this.params.onData({ logs, logger: this.logger })
+				this.params.onData({ logs })
 			}
 		}
 	}
 
 	destroy() {
+		console.info(`[${this.id}] destroying...`)
 		this.unwatch?.()
 	}
 }
