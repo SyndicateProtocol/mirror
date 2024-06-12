@@ -1,3 +1,5 @@
+import { stringify } from "viem"
+
 export class Http {
 	private readonly baseUrl: string
 	private readonly headers: Record<string, string>
@@ -37,7 +39,7 @@ export class Http {
 
 		const res = await fetch(url, {
 			method: "POST",
-			body: JSON.stringify(body),
+			body: stringify(body),
 			headers: {
 				"Content-Type": "application/json",
 				...this.headers,
