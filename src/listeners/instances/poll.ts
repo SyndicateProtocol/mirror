@@ -1,4 +1,5 @@
 import { SyndicateClient } from "@syndicateio/syndicate-node"
+import { waitForHash } from "@syndicateio/syndicate-node/utils/waitForHash"
 import { PollListener } from "../poll"
 
 const syndicate = new SyndicateClient({ token: "SYNDICATE_API_KEY" })
@@ -20,8 +21,13 @@ export const pollListener = new PollListener<number>({
 	id: "price-mirror",
 	pollingInterval: 60,
 	dataFetchers: [() => getPrice()],
-	onData: async ({ fulfilled, rejected: _ }) => {
+	onData: async ({ fulfilled, rejected }) => {
 		const price = fulfilled[0]
+		if (!price) {
+			console.debug("[price-mirror]: no price data")
+			return
+		}
+
 		console.debug(`[price-mirror]: got eth price: ${price}`)
 
 		// const { transactionId } = await syndicate.transact
@@ -40,5 +46,12 @@ export const pollListener = new PollListener<number>({
 		// 	projectId,
 		// })
 		// console.log(`got hash: ${hash} for transaction ID: ${transactionId}`)
+
+		if (rejected.length > 0) {
+			console.error(`rejected: ${rejected.length}`)
+			for (const err of rejected) {
+				console.error(err)
+			}
+		}
 	},
 })
