@@ -1,5 +1,7 @@
+import { v4 } from "uuid"
+
 export type ListenerParams = {
-	id: string
+	id?: string
 	enabled?: boolean
 }
 
@@ -11,7 +13,7 @@ export abstract class Listener {
 	enabled = true
 
 	constructor({ id, enabled }: ListenerParams) {
-		this.id = id
+		this.id = id ?? v4()
 		if (enabled !== undefined) {
 			this.enabled = enabled
 		}

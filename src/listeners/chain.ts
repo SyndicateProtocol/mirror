@@ -42,7 +42,7 @@ export interface ChainListenerParams<T extends AbiEvent>
 export class ChainListener<T extends AbiEvent> extends Listener {
 	private viem
 	private unwatch: WatchEventReturnType | undefined
-
+	private readonly DEFAULT_POLLING_INTERVAL = 10
 	private readonly pollingInterval
 
 	constructor(private readonly params: ChainListenerParams<T>) {
@@ -50,7 +50,8 @@ export class ChainListener<T extends AbiEvent> extends Listener {
 		this.viem = createPublicClient({
 			transport: http(this.params.rpcUrl),
 		})
-		this.pollingInterval = this.params.pollingInterval ?? 10
+		this.pollingInterval =
+			this.params.pollingInterval ?? this.DEFAULT_POLLING_INTERVAL
 	}
 
 	init() {

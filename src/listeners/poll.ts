@@ -11,9 +11,9 @@ export interface OnPollDataParams<T> {
 }
 
 export interface PollListenerParams<T> extends ListenerParams {
-	pollIntervalSeconds?: number
+	pollingInterval?: number
 	onData: (data: OnPollDataParams<T>) => void
-	dataToAwait: (() => Promise<T>)[]
+	dataFetchers: (() => Promise<T>)[]
 }
 
 export class PollListener<T> extends Listener {
@@ -24,7 +24,7 @@ export class PollListener<T> extends Listener {
 	constructor(private readonly params: PollListenerParams<T>) {
 		super({ id: params.id, enabled: params.enabled })
 		this.pollIntervalSeconds =
-			params.pollIntervalSeconds || this.DEFAULT_POLLING_INTERVAL
+			params.pollingInterval || this.DEFAULT_POLLING_INTERVAL
 	}
 
 	init() {
@@ -46,7 +46,7 @@ export class PollListener<T> extends Listener {
 
 	private async fetch() {
 		const data = await Promise.allSettled(
-			this.params.dataToAwait.map((fn) => fn()),
+			this.params.dataFetchers.map((fn) => fn()),
 		)
 
 		const fulfilled = data
