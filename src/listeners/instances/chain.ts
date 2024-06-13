@@ -1,6 +1,7 @@
+import { SyndicateClient } from "@syndicateio/syndicate-node"
+import { waitForHash } from "@syndicateio/syndicate-node/utils/waitForHash"
 import { v5 } from "uuid"
 import { parseAbiItem } from "viem"
-import { Syndicate } from "../../clients/syndicate"
 import { ChainListener } from "../chain"
 
 const ETH_MAINNET_RPC_URL = "https://eth.drpc.org"
@@ -10,10 +11,11 @@ const PUNK_BOUGHT_EVENT = parseAbiItem(
 	"event PunkBought(uint indexed punkIndex, uint value, address indexed fromAddress, address indexed toAddress)",
 )
 
-const syn = new Syndicate("SYNDICATE_API_KEY")
+const syndicate = new SyndicateClient({ token: "SYNDICATE_API_KEY" })
+const projectId = "<your-project-ID>"
+const chainId = 5432 // replace with target chain ID
 
 export const chainListener = new ChainListener({
-	enabled: true,
 	id: "punk-mirror",
 	rpcUrl: ETH_MAINNET_RPC_URL,
 	fromBlock: PUNK_LISTEN_FROM_BLOCK,
@@ -25,7 +27,7 @@ export const chainListener = new ChainListener({
 				args: { punkIndex, fromAddress, toAddress },
 				transactionHash,
 			}) => {
-				console.debug(`[punk-mirror]: punk index of ${punkIndex} bought`)
+				console.debug(`[punk-mirror]: punk ${punkIndex} bought`)
 
 				if (!toAddress) {
 					console.error(`toAddress is not defined for punkIndex: ${punkIndex}`)
@@ -38,18 +40,15 @@ export const chainListener = new ChainListener({
 					v5.URL,
 				)
 
-				// See if the request has already been processed
-				// const req = await syn
-				// 	.getRequest({
-				// 		transactionId: requestId,
-				// 		projectId: "<your-project-ID>",
-				// 	})
+				// // Check if the request has already been processed
+				// const req = await syndicate.wallet
+				// 	.getTransactionRequest(projectId, requestId)
 				// 	.catch((e) => {
 				// 		console.debug(`[punk-mirror] beginning reflection ${requestId}`)
 				// 	})
 
 				// if (req) {
-				// 	const attempt = req.transactionAttempts.find(
+				// 	const attempt = req.transactionAttempts?.find(
 				// 		(a) => a.transactionId === requestId,
 				// 	)
 				// 	console.debug(
@@ -58,14 +57,14 @@ export const chainListener = new ChainListener({
 				// 	return
 				// }
 
-				// Mint an NFT on base to the purchaser of a cryptopunk
-				// const { transactionId } = await syn
+				// // Mint an NFT on base to the purchaser of a cryptopunk
+				// const { transactionId } = await syndicate.transact
 				// 	.sendTransaction({
 				// 		requestId,
-				// 		chainId: <your-chain-ID>,
+				// 		chainId,
+				// 		projectId,
 				// 		contractAddress: "<your-contract-address>",
-				// 		projectId: "<your-project-ID>",
-				// 		functionSignature: "mintTo(address to)",
+				// 		functionSignature: "<your-function-signature>",
 				// 		args: {
 				// 			to: toAddress,
 				// 		},
@@ -75,10 +74,7 @@ export const chainListener = new ChainListener({
 				// 			`request ID: ${requestId} has already been processed`,
 				// 		)
 				// 	})
-				// const hash = await syn.waitForHash({
-				// 	transactionId,
-				// 	projectId: "",
-				// })
+				// const hash = waitForHash(syndicate, { transactionId, projectId: "" })
 				// console.log(`got hash: ${hash} for transaction ID: ${transactionId}`)
 			},
 		)

@@ -1,40 +1,44 @@
-import { Http } from "../../clients/http"
-import { Syndicate } from "../../clients/syndicate"
+import { SyndicateClient } from "@syndicateio/syndicate-node"
+import { waitForHash } from "@syndicateio/syndicate-node/utils"
 import { PollListener } from "../poll"
 
-const http = new Http(
-	"https://api.coingecko.com/api/v3/simple/price?ids=degen-base&vs_currencies=usd",
-)
+const syndicate = new SyndicateClient({ token: "SYNDICATE_API_KEY" })
+const projectId = "<your-project-ID>"
+const chainId = 5432 // replace with target chain ID
 
-const syn = new Syndicate("SYNDICATE_API_KEY")
+async function getPrice() {
+	const res = await fetch(
+		"https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd",
+	)
+	if (!res.ok) {
+		throw new Error("Failed to fetch price")
+	}
+	const data = (await res.json()) as { ethereum: { usd: number } }
+	return data.ethereum.usd
+}
 
 export const pollListener = new PollListener<number>({
-	enabled: true,
 	id: "price-mirror",
 	pollIntervalSeconds: 60,
-	dataToAwait: [
-		() =>
-			Http.get<{ ethereum: { usd: number } }>(
-				"https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd",
-			).then((data) => data.ethereum.usd),
-	],
+	dataToAwait: [() => getPrice()],
 	onData: async ({ fulfilled, rejected: _ }) => {
 		const price = fulfilled[0]
 		console.debug(`[price-mirror]: got eth price: ${price}`)
-		// const { transactionId } = await syn
-		//   .sendTransaction({
-		// 		chainId: <target-chain-ID-here>,
-		// 		contractAddress: <target-contract-address-here>,
-		// 		projectId: <your-project-ID-here>,
-		//     functionSignature: 'updatePrice(uint256 price)',
-		//     args: { price }
-		//   })
-		//   .catch((_) => {
-		//     throw new Error('Could not get price')
-		//   })
-		// const hash = await syn.waitForHash({
+
+		// const { transactionId } = await syndicate.transact
+		// 	.sendTransaction({
+		// 		chainId,
+		// 		projectId,
+		// 		contractAddress: "<your-contract-address>",
+		// 		functionSignature: "updatePrice(uint256 price)",
+		// 		args: { price },
+		// 	})
+		// 	.catch((_) => {
+		// 		throw new Error("Could not get price")
+		// 	})
+		// const hash = await waitForHash(syndicate, {
 		// 	transactionId,
-		// 	projectId: <your-project-ID-here>
+		// 	projectId,
 		// })
 		// console.log(`got hash: ${hash} for transaction ID: ${transactionId}`)
 	},

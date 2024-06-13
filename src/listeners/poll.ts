@@ -22,7 +22,7 @@ export class PollListener<T> extends Listener {
 	private interval?: Timer
 
 	constructor(private readonly params: PollListenerParams<T>) {
-		super(params.id, params.enabled)
+		super({ id: params.id, enabled: params.enabled })
 		this.pollIntervalSeconds =
 			params.pollIntervalSeconds || this.DEFAULT_POLLING_INTERVAL
 	}

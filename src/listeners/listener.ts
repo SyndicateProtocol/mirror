@@ -1,6 +1,6 @@
 export type ListenerParams = {
 	id: string
-	enabled: boolean
+	enabled?: boolean
 }
 
 export abstract class Listener {
@@ -8,10 +8,12 @@ export abstract class Listener {
 	readonly startTime = Date.now()
 	abstract init(): void
 	abstract destroy(): void
-	enabled = false
+	enabled = true
 
-	constructor(id: string, enabled: boolean) {
+	constructor({ id, enabled }: ListenerParams) {
 		this.id = id
-		this.enabled = enabled
+		if (enabled !== undefined) {
+			this.enabled = enabled
+		}
 	}
 }

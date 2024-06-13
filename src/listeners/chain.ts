@@ -46,7 +46,7 @@ export class ChainListener<T extends AbiEvent> extends Listener {
 	private readonly pollingInterval
 
 	constructor(private readonly params: ChainListenerParams<T>) {
-		super(params.id, params.enabled)
+		super({ id: params.id, enabled: params.enabled })
 		this.viem = createPublicClient({
 			transport: http(this.params.rpcUrl),
 		})
